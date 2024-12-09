@@ -1,7 +1,13 @@
 package models;
 
 public class User {
-    private int userId; // Updated from "id" to "userId"
+    @Override
+	public String toString() {
+		return "User [userId=" + userId + ", name=" + name + ", email=" + email + ", gender=" + gender + ", password="
+				+ password + ", role=" + role + "]";
+	}
+
+	private int userId; // Updated from "id" to "userId"
     private String name;
     private String email;
     private String gender;
