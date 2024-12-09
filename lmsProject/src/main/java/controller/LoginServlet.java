@@ -1,6 +1,7 @@
 package controller;
 
 import services.UserServices;
+import models.User;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -8,8 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import models.User;
 
 import java.io.IOException;
 
@@ -36,23 +35,35 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-         int currentUserId=userServices.login(email, password);
-          User user=userServices.getUserById(currentUserId);
-          System.out.println(user);
-          if(currentUserId != -1) {
-        	  HttpSession httpSession=request.getSession();
-        	  httpSession.setAttribute("loggedInUserId", currentUserId);
-        	  httpSession.setAttribute("user", user);
-        	  
-        	  
-        	  if("student".equalsIgnoreCase(user.getRole()))
-        		  response.sendRedirect("student_dashboard.jsp");
-        	  
-        	  if("trainer".equalsIgnoreCase(user.getRole()))
-        		  response.sendRedirect("trainer_dashboard.jsp");
-          }else {
-        	  response.sendRedirect("index.html");
-          }
-        
+        // Validate login credentials
+        int currentUserId = userServices.login(email, password);
+
+        // If login is successful
+        if (currentUserId != -1) {
+            User user = userServices.getUserById(currentUserId);
+
+            // Debugging: Check the user details
+            System.out.println("User logged in: " + user.getName() + " with role: " + user.getRole());
+
+            // Set session attributes for the logged-in user
+            HttpSession session = request.getSession();
+            session.setAttribute("loggedInUserId", currentUserId);
+            session.setAttribute("user", user);
+
+            // Check the user role
+            if ("student".equalsIgnoreCase(user.getRole())) {
+                System.out.println("Redirecting to student_dashboard.jsp");
+                response.sendRedirect("student_dashboard.jsp");
+            } else if ("trainer".equalsIgnoreCase(user.getRole())) {
+                System.out.println("Redirecting to trainer_dashboard.jsp");
+                response.sendRedirect("trainer_dashboard.jsp");
+            } else {
+                response.sendRedirect("index.html");  // In case of an unrecognized role
+            }
+        } else {
+            // If login failed, redirect back to login page
+            System.out.println("Login failed. Redirecting to index.html.");
+            response.sendRedirect("index.html");
+        }
     }
 }
