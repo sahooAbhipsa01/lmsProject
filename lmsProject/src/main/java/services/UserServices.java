@@ -6,18 +6,13 @@ import models.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UserServices {
-
-    /**
-     * Registers a new user in the database.
-     *
-     * @param user The User object containing the registration details.
-     * @return true if registration is successful, false otherwise.
-     */
     public boolean registerUser(User user) {
-        try (Connection con = DBConnection.connectDB()) {
-            PreparedStatement ps = con.prepareStatement(DBQueries.insertUser);
+        try (Connection connection = DBConnection.connectDB()) {
+            PreparedStatement ps = connection.prepareStatement(DBQueries.insertUser);
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getGender());
@@ -33,12 +28,57 @@ public class UserServices {
         }
         return false;
     }
-
-    /**
-     * Main method to test the functionality of UserServices.
-     *
-     * @param args Command-line arguments
-     */
+    
+    public int login(String email,String password) {
+    	try (Connection connection = DBConnection.connectDB()){
+    			PreparedStatement ps=connection.prepareStatement(DBQueries.getUserByUserEmail);
+    			ps.setString(1, email);
+    			ResultSet resultSet=ps.executeQuery();
+    			if(resultSet.next()) {
+    				String storedPassword=resultSet.getString("password");
+    				
+    				int currentUserId=resultSet.getInt("user_id");
+    				
+    				if(PasswordUtils.verifyPassword(password, storedPassword))
+    					return currentUserId;
+    			}
+    		
+    		
+    	}catch(SQLException e) {
+    		System.err.println(e.getMessage());
+    	}
+    	return -1;
+    	
+    }
+    
+    public User getUserById(int userId) {
+    	User user=new User();
+    	try(Connection con=DBConnection.connectDB();
+    			PreparedStatement ps=con.prepareStatement(DBQueries.getUserByUserId);
+    			){
+    		ps.setInt(1, userId);
+    		ResultSet resultSet=ps.executeQuery();
+    		
+    		if (resultSet.next()) {
+    			String name=resultSet.getString("name");
+    			String role=resultSet.getString("role");
+    			String email=resultSet.getString("email");
+    			user.setUserId(userId);
+    			user.setName(name);
+    			user.setRole(role);
+    			user.setName(email);
+    			
+    			
+    			
+    		}
+    		
+    	}catch(SQLException e) {
+    		System.err.println(e.getMessage());
+    	}
+    	System.out.println(user);
+    	return user;
+    	
+    }
     public static void main(String[] args) {
         UserServices userServices = new UserServices();
 
@@ -57,5 +97,6 @@ public class UserServices {
         } else {
             System.out.println("User registration failed.");
         }
+        
     }
 }
