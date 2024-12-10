@@ -66,7 +66,7 @@ public class UserServices {
     			user.setUserId(userId);
     			user.setName(name);
     			user.setRole(role);
-    			user.setName(email);
+    			user.setEmail(email);
     			
     			
     			

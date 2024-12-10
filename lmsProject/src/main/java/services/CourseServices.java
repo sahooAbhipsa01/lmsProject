@@ -67,14 +67,15 @@ public class CourseServices {
 
             while (rs.next()) {
                 Courses course = new Courses();
-                course.setId(rs.getInt("id"));
-                course.setName(rs.getString("name"));
-                course.setTrainerId(rs.getInt("trainer_id"));
+                course.setId(rs.getInt("course_id"));
+                course.setName(rs.getString("course_name"));
+                course.setTrainerName(rs.getString("trainer_name"));
                 courses.add(course);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("Courses retrieved: " + courses.size());
         return courses;
     }
 }
